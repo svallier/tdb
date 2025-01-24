@@ -8,10 +8,10 @@ interface FiltersProps {
 }
 
 const propertyTypes = [
-  { value: 'house', label: 'Maison' },
-  { value: 'apartment', label: 'Appartement' },
-  { value: 'building', label: 'Immeuble' },
-  { value: 'land', label: 'Terrain' }
+  { value: 'Maison', label: 'Maison' },
+  { value: 'Appartement', label: 'Appartement' },
+  { value: 'Immeuble', label: 'Immeuble' },
+  { value: 'Terrain', label: 'Terrain' }
 ] as const;
 
 const expenseTypes: { value: ExpenseType; label: string }[] = [

@@ -1,41 +1,67 @@
 import { createClient } from '@supabase/supabase-js';
-
+ 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
-
+ 
 export async function checkDatabaseState() {
   try {
-    // Check tables count
-    const tables = ['publishers', 'locations', 'real_estate_ads', 'pictures', 'options'];
-    
-    for (const table of tables) {
-      const { count, error } = await supabase
-        .from(table)
-        .select('*', { count: 'exact', head: true });
-      
-      if (error) throw error;
-      console.log(`${table} count:`, count);
+    // Vérifier la connexion à la base de données avec une requête simple
+    const { count, error: countError } = await supabase
+      .from('real_estate_ads')
+      .select('*', { count: 'exact', head: true });
+ 
+    if (countError) {
+      console.error('Database health check failed:', countError);
+      return;
     }
-
-    // Get sample real estate ad with relations
+ 
+    console.log('Database connection: OK');
+    console.log('Total properties:', count);
+ 
+    // Vérifier la structure des données avec un échantillon
     const { data: sample, error: sampleError } = await supabase
       .from('real_estate_ads')
       .select(`
-        *,
-        publisher:publisher_id(*),
-        location:location_id(*),
-        pictures(*),
-        options(*)
+        id,
+        title,
+        price,
+        surface,
+        reference,
+        picture_url,
+        pictures (
+          picture_url
+        ),
+        location:location_id (
+          id,
+          city,
+          region_code,
+          coordinates
+        )
       `)
       .limit(1)
       .single();
-    
-    if (sampleError) throw sampleError;
-    console.log('Sample property with relations:', sample);
-
+ 
+    if (sampleError) {
+      console.error('Sample data check failed:', sampleError);
+      return;
+    }
+ 
+    // Vérifier les champs critiques
+    const criticalFields = {
+      'ID': sample?.id,
+      'Title': sample?.title,
+      'Price': sample?.price,
+      'Surface': sample?.surface,
+      'Location': sample?.location?.city,
+      'Coordinates': sample?.location?.coordinates,
+      'Pictures': sample?.pictures?.length || (sample?.picture_url ? 1 : 0)
+    };
+ 
+    console.log('Data structure check:', criticalFields);
+ 
   } catch (error) {
-    console.error('Error checking database state:', error);
+    console.error('Checkpoint verification failed:', error);
   }
 }

@@ -23,11 +23,31 @@ const propertyTypes = ['house', 'apartment', 'building', 'land'];
 
 // High-quality Unsplash real estate images
 const images = [
-  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80'
+  [
+    'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1560448204-61dc9dc7f37e?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1560448204-edc55d53e9df?auto=format&fit=crop&w=800&q=80'
+  ],
+  [
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c751?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1512917774080-9991f1c4c752?auto=format&fit=crop&w=800&q=80'
+  ],
+  [
+    'https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1570129477492-45c003edd2bf?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1570129477492-45c003edd2c0?auto=format&fit=crop&w=800&q=80'
+  ],
+  [
+    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f84?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f85?auto=format&fit=crop&w=800&q=80'
+  ],
+  [
+    'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1568605114967-8130f3a36995?auto=format&fit=crop&w=800&q=80',
+    'https://images.unsplash.com/photo-1568605114967-8130f3a36996?auto=format&fit=crop&w=800&q=80'
+  ]
 ];
 
 // Generate a property with realistic values
@@ -93,7 +113,7 @@ const generateProperty = (id) => {
       region: location.region,
       address: `${random(1, 150)} rue ${['de la Paix', 'Victor Hugo', 'des Lilas', 'du Commerce', 'Saint-Michel'][random(0, 4)]}`
     },
-    images: [images[random(0, images.length - 1)]],
+    images: images[random(0, images.length - 1)],
     monthlyRent,
     expenses: {
       monthlyCharges,

@@ -1,7 +1,7 @@
 export interface Property {
   id: string;
   title: string;
-  type: 'house' | 'apartment' | 'building' | 'land';
+  type: string;
   price: number;
   area: number;
   rooms: number;
@@ -11,13 +11,13 @@ export interface Property {
     address?: string;
   };
   images: string[];
-  monthlyRent: number;
-  expenses: {
+  monthly_rent?: number;
+  expenses?: {
     monthlyCharges: number;
     propertyTax: number;
     insurance: number;
   };
-  metrics: {
+  metrics?: {
     pricePerSqm: number;
     grossYield: number;
     netYield: number;
@@ -27,11 +27,11 @@ export interface Property {
     cashflowYield: number;
     monthlyLoanPayment: number;
   };
-  marketIndicators: {
+  market_indicators?: {
     unemploymentRate: number;
     populationGrowth: number;
     averageIncome: number;
-    rentalTension: number;
+    rental_tension: number;
   };
   createdAt: string;
 }
@@ -47,7 +47,7 @@ export interface FilterState {
   maxArea: number;
   minCashflow: number;
   maxCashflow: number;
-  propertyType: Array<'house' | 'apartment' | 'building' | 'land'>;
+  propertyType: string[];
   minGrossYield: number;
   maxGrossYield: number;
   minRooms: number;

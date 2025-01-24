@@ -2,7 +2,10 @@ import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { Property } from '../types';
 import 'leaflet/dist/leaflet.css';
-import { Icon } from 'leaflet';
+import { Icon, LatLngTuple } from 'leaflet';
+
+// Constants
+const DEFAULT_CENTER: LatLngTuple = [46.603354, 1.888334]; // Centre de la France
 
 // Fix for default marker icon
 const icon = new Icon({
@@ -43,9 +46,10 @@ const cityCoordinates: Record<string, [number, number]> = {
 };
 
 export function PropertyMap({ properties, onMarkerClick, selectedPropertyId }: MapProps) {
+
   return (
     <MapContainer
-      center={[46.603354, 1.888334]} // Centre de la France
+      center={DEFAULT_CENTER}
       zoom={6}
       className="w-full h-full rounded-lg"
     >
@@ -54,7 +58,11 @@ export function PropertyMap({ properties, onMarkerClick, selectedPropertyId }: M
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       {properties.map((property) => {
+        if (!property?.location?.city) return null;
+        
+        // Get coordinates for the city
         const coords = cityCoordinates[property.location.city];
+        
         if (!coords) return null;
         
         const isSelected = selectedPropertyId === property.id;
@@ -71,8 +79,8 @@ export function PropertyMap({ properties, onMarkerClick, selectedPropertyId }: M
             <Popup>
               <div className="text-sm">
                 <h3 className="font-semibold">{property.title}</h3>
-                <p className="text-gray-600">{property.price.toLocaleString()} €</p>
-                <p className="text-gray-600">{property.area} m² - {property.rooms} pièces</p>
+                <p className="text-gray-600">{property.price?.toLocaleString() || 0} €</p>
+                <p className="text-gray-600">{property.area || 0} m² - {property.rooms || 0} pièces</p>
               </div>
             </Popup>
           </Marker>

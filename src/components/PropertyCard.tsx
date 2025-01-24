@@ -1,7 +1,8 @@
 import React from 'react';
+import { useState } from 'react';
 import { Property } from '../types';
 import { calculatePropertyScore } from '../utils/propertyScoring';
-import { Heart, ShoppingCart, TrendingUp, Home, MapPin, Euro, Grid } from 'lucide-react';
+import { Heart, ShoppingCart, TrendingUp, Home, MapPin, Euro, Grid, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PropertyCardProps {
   property: Property;
@@ -34,35 +35,60 @@ export function PropertyCard({
     insurance: true
   }
 }: PropertyCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (Array.isArray(property.images)) {
+      setCurrentImageIndex((prev) => 
+        prev === property.images.length - 1 ? 0 : prev + 1
+      );
+    }
+  };
+
+  const handlePreviousImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (Array.isArray(property.images)) {
+      setCurrentImageIndex((prev) => 
+        prev === 0 ? property.images.length - 1 : prev - 1
+      );
+    }
+  };
   // Calculer les charges totales en fonction des filtres
   const calculateTotalExpenses = () => {
     let total = 0;
-    if (includedExpenses.monthlyCharges) total += property.expenses.monthlyCharges;
-    if (includedExpenses.propertyTax) total += property.expenses.propertyTax / 12; // Convertir en mensuel
-    if (includedExpenses.insurance) total += property.expenses.insurance / 12; // Convertir en mensuel
+    if (includedExpenses.monthlyCharges) total += property.expenses?.monthlyCharges || 0;
+    if (includedExpenses.propertyTax) total += (property.expenses?.propertyTax || 0) / 12;
+    if (includedExpenses.insurance) total += (property.expenses?.insurance || 0) / 12;
     return total;
   };
 
   const monthlyExpenses = calculateTotalExpenses();
   const annualExpenses = monthlyExpenses * 12;
   
-  // Recalculer les métriques en fonction des charges incluses
-  const annualRent = property.monthlyRent * 12;
-  const netYield = +((annualRent - annualExpenses) / property.price * 100).toFixed(2);
-  const netYieldWithLoan = +(((annualRent - annualExpenses - (property.metrics.monthlyLoanPayment * 12)) / property.price) * 100).toFixed(2);
-  const cashflow = property.monthlyRent - monthlyExpenses - property.metrics.monthlyLoanPayment;
+  // Ensure all required values exist with fallbacks
+  const price = property?.price || 0;
+  const monthlyRent = property?.monthly_rent || 0;
+  const monthlyLoanPayment = property?.metrics?.monthlyLoanPayment || 0;
+  
+  // Calculate metrics
+  const annualRent = monthlyRent * 12;
+  const netYield = price > 0 ? +((annualRent - annualExpenses) / price * 100).toFixed(2) : 0;
+  const netYieldWithLoan = price > 0 ? +(((annualRent - annualExpenses - (monthlyLoanPayment * 12)) / price) * 100).toFixed(2) : 0;
+  const cashflow = monthlyRent - monthlyExpenses - monthlyLoanPayment;
   const annualCashflow = cashflow * 12;
-  const cashflowYield = +((annualCashflow / property.price) * 100).toFixed(2);
+  const cashflowYield = price > 0 ? +((annualCashflow / price) * 100).toFixed(2) : 0;
 
   // Utiliser les métriques recalculées
   const effectiveNetYield = loanAmount > 0 ? netYieldWithLoan : netYield;
   const isPositiveCashflow = cashflow > 0;
 
   const score = calculatePropertyScore(
-    netYield,
-    property.marketIndicators.rentalTension,
-    property.type,
-    property.location.city
+    property?.metrics?.netYield || 0,
+    property?.market_indicators?.rental_tension || 0.9,
+    property?.type || 'apartment',
+    property?.location?.city || ''
   );
 
   return (
@@ -73,12 +99,35 @@ export function PropertyCard({
       onClick={() => onClick(property.id)}
     >
       {/* Image */}
-      <div className={`relative ${compact ? 'w-48 h-48' : 'h-48'}`}>
+      <div 
+        className={`relative ${compact ? 'w-48 h-48' : 'h-48'}`}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <img
-          src={property.images[0]}
-          alt={property.title}
+          src={Array.isArray(property?.images) ? property.images[currentImageIndex] : property?.images || ''}
+          alt={property?.title || 'Property image'}
           className="w-full h-full object-cover"
         />
+        {Array.isArray(property?.images) && property.images.length > 1 && isHovering && (
+          <>
+            <button
+              onClick={handlePreviousImage}
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 transition-all transform hover:scale-110"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleNextImage}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white text-gray-800 transition-all transform hover:scale-110"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white px-2 py-0.5 rounded-full text-xs transition-opacity">
+              {currentImageIndex + 1} / {property.images.length}
+            </div>
+          </>
+        )}
         <div className="absolute top-2 right-2 flex gap-2">
           {onToggleFavorite && (
             <button
@@ -123,28 +172,32 @@ export function PropertyCard({
       <div className={`p-4 ${compact ? 'flex-1' : ''}`}>
         <div className="flex items-start justify-between">
           <div>
-            <h3 className="font-semibold text-gray-900">{property.title}</h3>
+            <h3 className="font-semibold text-gray-900">{property?.title || 'Property'}</h3>
             <div className="flex items-center gap-1 text-gray-500 text-sm mt-1">
               <MapPin className="w-4 h-4" />
-              <span>{property.location.city}</span>
+              <span>{property?.location?.city || 'Unknown location'}</span>
             </div>
           </div>
           <div className="text-right">
-            <div className="font-bold text-gray-900">{property.price.toLocaleString()}€</div>
-            <div className="text-sm text-gray-500">
-              {property.metrics.pricePerSqm.toLocaleString()}€/m²
-            </div>
+            <div className="font-bold text-gray-900">{price.toLocaleString()}€</div>
+            {property?.metrics?.pricePerSqm && (
+              <div className="text-sm text-gray-500">
+                {property.metrics.pricePerSqm.toLocaleString()}€/m²
+              </div>
+            )}
           </div>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-4">
           <div className="flex items-center gap-2">
             <Home className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600">{property.type}</span>
+            <span className="text-sm text-gray-600">{property?.type || 'Unknown type'}</span>
           </div>
           <div className="flex items-center gap-2">
             <Grid className="w-4 h-4 text-gray-400" />
-            <span className="text-sm text-gray-600">{property.area}m² • {property.rooms}p</span>
+            <span className="text-sm text-gray-600">
+              {property?.area || 0}m² • {property?.rooms || 0}p
+            </span>
           </div>
         </div>
 
@@ -154,7 +207,7 @@ export function PropertyCard({
               <Euro className="w-4 h-4 text-gray-400" />
               <span className="text-sm text-gray-600">Loyer mensuel</span>
             </div>
-            <span className="font-medium">{property.monthlyRent.toLocaleString()}€</span>
+            <span className="font-medium">{monthlyRent.toLocaleString()}€</span>
           </div>
 
           <div className="flex items-center justify-between">
@@ -174,7 +227,7 @@ export function PropertyCard({
                 <span className="text-sm text-gray-600">Mensualité</span>
               </div>
               <span className="font-medium text-gray-600">
-                {property.metrics.monthlyLoanPayment.toLocaleString()}€
+                {monthlyLoanPayment.toLocaleString()}€
               </span>
             </div>
           )}

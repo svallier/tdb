@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react-router-dom';
 import { Property, FilterState } from './types';
 import { PropertyCard } from './components/PropertyCard';
 import { Filters } from './components/Filters';
@@ -12,7 +12,7 @@ import { InvestmentGuide } from './components/InvestmentGuide';
 import { Tools } from './components/Tools';
 import { BrokerContact } from './components/BrokerContact';
 import { ProjectChatbot } from './components/ProjectChatbot';
-import { checkDatabaseState } from './services/checkDatabase';
+import { PropertyDetails } from './components/PropertyDetails';
 
 const initialFilters: FilterState = {
   city: '',
@@ -32,14 +32,10 @@ const initialFilters: FilterState = {
 };
 
 function MainApp() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [cartProperties, setCartProperties] = useState<Property[]>([]);
-
-  useEffect(() => {
-    // Check database state on mount
-    checkDatabaseState();
-  }, []);
   const [favorites, setFavorites] = useState<Property[]>([]);
   const [currentView, setCurrentView] = useState<'search' | 'favorites'>('search');
   const [highlightedProperties, setHighlightedProperties] = useState<Property[]>([]);
@@ -75,7 +71,7 @@ function MainApp() {
   }, [filters]);
 
   const handlePropertyClick = (id: string) => {
-    setSelectedProperty(id);
+    navigate(`/property/${id}`);
   };
 
   const handleAddToCart = (property: Property) => {
@@ -262,6 +258,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<MainApp />} />
         <Route path="/tools" element={<Tools />} />
+        <Route path="/property/:id" element={<PropertyDetails />} />
         <Route path="/contact-broker" element={<BrokerContact />} />
       </Routes>
     </Router>

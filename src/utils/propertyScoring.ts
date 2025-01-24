@@ -44,6 +44,10 @@ export function calculatePropertyScore(
   propertyType: string,
   city: string
 ): ScoringResult {
+  // Provide default values if inputs are invalid
+  netYield = netYield || 0;
+  rentalTension = rentalTension || 0.9;
+
   // Calculate individual scores
   const yieldScore = getScoreFromValue(netYield, YIELD_THRESHOLDS);
   const tensionScore = getScoreFromValue(rentalTension, RENTAL_TENSION_THRESHOLDS);
