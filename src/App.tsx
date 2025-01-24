@@ -12,6 +12,7 @@ import { InvestmentGuide } from './components/InvestmentGuide';
 import { Tools } from './components/Tools';
 import { BrokerContact } from './components/BrokerContact';
 import { ProjectChatbot } from './components/ProjectChatbot';
+import { checkDatabaseState } from './services/checkDatabase';
 
 const initialFilters: FilterState = {
   city: '',
@@ -34,6 +35,11 @@ function MainApp() {
   const [filters, setFilters] = useState<FilterState>(initialFilters);
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [cartProperties, setCartProperties] = useState<Property[]>([]);
+
+  useEffect(() => {
+    // Check database state on mount
+    checkDatabaseState();
+  }, []);
   const [favorites, setFavorites] = useState<Property[]>([]);
   const [currentView, setCurrentView] = useState<'search' | 'favorites'>('search');
   const [highlightedProperties, setHighlightedProperties] = useState<Property[]>([]);
