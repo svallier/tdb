@@ -1,9 +1,8 @@
 import { calculateMonthlyPayment } from '../utils/loanCalculator';
-import { Property } from '../types';
 
 // Helper function to generate random number between min and max
-const random = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1) + min);
-const randomFloat = (min: number, max: number) => +(Math.random() * (max - min) + min).toFixed(2);
+const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
+const randomFloat = (min, max) => +(Math.random() * (max - min) + min).toFixed(2);
 
 // French cities with their rental tension data
 const cities = [
@@ -20,7 +19,7 @@ const cities = [
 ];
 
 // Property types with their typical characteristics
-const propertyTypes = ['house', 'apartment', 'building', 'land'] as const;
+const propertyTypes = ['house', 'apartment', 'building', 'land'];
 
 // High-quality Unsplash real estate images
 const images = [
@@ -32,7 +31,7 @@ const images = [
 ];
 
 // Generate a property with realistic values
-const generateProperty = (id: number): Property => {
+const generateProperty = (id) => {
   const type = propertyTypes[random(0, propertyTypes.length - 1)];
   const location = cities[random(0, cities.length - 1)];
   
